@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Table} from "reactstrap";
+import {Button, Table} from "reactstrap";
 import {NavLink, Route} from "react-router-dom";
 import moment from "moment";
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -15,7 +15,25 @@ class Expense extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {expense: []}
+        this.state = {expense: [], expenseid: ""}
+    }
+
+    handleDeleteExpense(e, id) {
+        e.preventDefault(e);
+        let expenses = this.state.expense;
+        expenses = expenses.filter(expense => expense.id !== id);
+        this.setState({expense: expenses});
+
+        fetch('http://localhost:8888/dcdev/javascript/expenshare/expenshare-back/public/expense/', {
+            method: 'DELETE',
+            body: JSON.stringify({expense: id})
+        })
+            .then(response => response.json())
+            .then(data => id, alert('Dépense supprimée !'))
+            .catch(err => alert("Erreur de suppression !"))
+        ;
+
+
     }
 
     componentDidMount() {
@@ -43,6 +61,10 @@ class Expense extends Component {
                         <td>{expense.category.label}</td>
                         <td><FontAwesomeIcon icon={expense.category.icon} /></td>
                         <td>{moment(expense.createdAt).format("D-MM-YYYY")}</td>
+                        <td><Button onClick={e => this.handleDeleteExpense(e, expense.id)} outline color="danger" size="sm">Supprimer</Button>
+                            <Button className="ml-2" outline color="info"
+                                    size="sm">Modifier</Button>
+                        </td>
                     </tr>
                     </tbody>
             );
@@ -65,6 +87,8 @@ class Expense extends Component {
                         <th>Catégorie</th>
                         <th>Icone</th>
                         <th>Date de création</th>
+                        <th>Actions</th>
+
                     </tr>
                     </thead>
                     {expense}

@@ -21,13 +21,14 @@ class PersonForm extends Component {
 
     handleCreate(event) {
         event.preventDefault();
+
         fetch('http://localhost:8888/dcdev/javascript/expenshare/expenshare-back/public/person/', {
             method: 'POST',
             body: JSON.stringify({ firstname: this.state.firstname, lastname: this.state.lastname, slug: this.props.slug })
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                this.props.callBack(JSON.parse(data));
                 alert('Nouvelle personne crée avec succès !');
             })
             .catch(err => alert('Erreur lors de la création de la personne'))
