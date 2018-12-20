@@ -1,5 +1,15 @@
 import React, {Component} from 'react';
 import {Table} from "reactstrap";
+import {NavLink, Route} from "react-router-dom";
+import moment from "moment";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCar, faHotel, faUtensils, faRunning, faVideo, faWineBottle } from '@fortawesome/free-solid-svg-icons';
+import ExpenseForm from "./ExpenseForm";
+
+library.add(faCar, faHotel, faUtensils, faRunning, faVideo, faWineBottle);
+
+
 
 class Expense extends Component {
 
@@ -9,16 +19,12 @@ class Expense extends Component {
     }
 
     componentDidMount() {
-        fetch('http://localhost:8888/dcdev/javascript/expenshare/expenshare-back/public/expense', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
+        fetch('http://localhost:8888/dcdev/javascript/expenshare/expenshare-back/public/expense/group/' + this.props.slug)
             .then(response => response.json())
-            .then(data => this.setState({expense: data}))
+            .then(data => this.setState({ expense: data }))
         ;
     }
+
 
 
     render() {
@@ -32,10 +38,11 @@ class Expense extends Component {
                     <tr>
                         <th scope="row">{expense.id}</th>
                         <td>{expense.person.firstname + ' ' + expense.person.lastname}</td>
-                        <td>{expense.amount}</td>
+                        <td>{parseFloat(expense.amount)} €</td>
                         <td>{expense.title}</td>
                         <td>{expense.category.label}</td>
-                        <td>{expense.person.shareGroup.slug}</td>
+                        <td><FontAwesomeIcon icon={expense.category.icon} /></td>
+                        <td>{moment(expense.createdAt).format("D-MM-YYYY")}</td>
                     </tr>
                     </tbody>
             );
@@ -44,7 +51,11 @@ class Expense extends Component {
         return (
             <React.Fragment>
                 <h1>Dépenses</h1>
-                <Table hover>
+
+                <NavLink to={this.props.match.url + '/add'} className="m-2 px-4 btn-lg btn-info">Ajouter une dépense</NavLink>
+                <Route path={this.props.match.url + '/add'} render={props => <ExpenseForm {...props} slug={this.props.slug}/>}/>
+
+                <Table size="sm" className="mt-4" hover>
                     <thead>
                     <tr>
                         <th>#</th>
@@ -52,7 +63,8 @@ class Expense extends Component {
                         <th>Dépense</th>
                         <th>Description</th>
                         <th>Catégorie</th>
-                        <th>Groupe</th>
+                        <th>Icone</th>
+                        <th>Date de création</th>
                     </tr>
                     </thead>
                     {expense}
